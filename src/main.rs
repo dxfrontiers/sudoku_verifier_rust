@@ -74,14 +74,22 @@ fn is_slice_unique(sl: &[u8;9]) -> bool{
      ) == (1u16<<9) -1
 }
 
-fn eval_sudoku_string(sudoku: Sudoku) -> bool{
-    let correct_range = sudoku.fields.iter().all(|e| *e<10 && *e>0);
-    if !correct_range { return false;}
+/**
+    Evaluate a given sudoku
+    For a sudoku, filled with valid values, to be valid, all of the following needs to contain no duplicates:
+    - rows
+    - columns
+    - boxes
+*/
+fn eval_sudoku(sudoku: Sudoku) -> bool{
     is_valid_view(sudoku.as_columns())
         && is_valid_view(sudoku.as_rows())
         && is_valid_view(sudoku.as_boxes())
 }
 
+/**
+    Create a sudoku from a string representation, if it describes a sudoku filled with valid values (1-9)
+ */
 fn parse_raw_line_to_sudoku(input: &str) -> Option<Sudoku>{
     let mut fields =  [0;81];
     let count = input.split(',')
@@ -109,28 +117,33 @@ fn main() -> std::io::Result<()>  {
     let mut reader = BufReader::new(file);
 
 
-    let mut lines = String::new();
-    reader.read_to_string(&mut lines).unwrap();
 
-
-    let valids = lines.par_lines()
-        .filter_map(|line| parse_raw_line_to_sudoku(line) )
-        .map(|sudoku| eval_sudoku_string(sudoku) )
-        .filter(|b|*b)
-        .count();
 
 
 
     /*
-    let valids = reader.lines()
-        .filter_map(|line|line.ok())
-        .filter_map(|line| parse_raw_line_to_sudoku(&line) )
-        .map(|sudoku| eval_sudoku_string(sudoku) )
+    let mut lines = String::new();
+    reader.read_to_string(&mut lines).unwrap();
+    let valid_count = lines.par_lines()
+        .filter_map(|line| parse_raw_line_to_sudoku(line) )
+        .map(|sudoku| eval_sudoku(sudoku) )
         .filter(|b|*b)
         .count();
+
      */
 
 
-    println!("Valid sudokus: {}",valids);
+
+    let valid_count = reader.lines()
+        .filter_map(|line|line.ok())
+        .filter_map(|line| parse_raw_line_to_sudoku(&line) )
+        .map(|sudoku| eval_sudoku(sudoku) )
+        .filter(|b|*b)
+        .count();
+
+
+
+
+    println!("Valid sudokus: {}",valid_count);
     Ok(())
 }
