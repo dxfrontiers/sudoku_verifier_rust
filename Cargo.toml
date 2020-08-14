@@ -1,0 +1,8 @@
+[package]
+name = "sudoku"
+version = "0.1.0"
+authors = ["Marco Amann <marco.amann@digitalfrontiers.de>"]
+edition = "2018"
+
+[dependencies]
+rayon = "1.3.0"

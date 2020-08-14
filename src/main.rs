@@ -107,6 +107,10 @@ fn parse_raw_line_to_sudoku(input: &str) -> Option<Sudoku>{
     }
 }
 
+/**
+    Run all the things
+    We read the file line by
+*/
 fn main() -> std::io::Result<()>  {
 
     let input_file = env::args()
@@ -114,34 +118,35 @@ fn main() -> std::io::Result<()>  {
         .ok_or(Error::from(ErrorKind::InvalidInput))?;
 
     let file = File::open(input_file)?;
-    let mut reader = BufReader::new(file);
 
 
+    let mut valid_count = 0;
+    for i in 0 .. 100 {
+        let mut reader = BufReader::new(&file);
 
 
+        // The sequential version
 
+        valid_count += reader.lines()
+            .filter_map(|line|line.ok())
+            .filter_map(|line| parse_raw_line_to_sudoku(&line) )
+            .map(|sudoku| eval_sudoku(sudoku) )
+            .filter(|b|*b)
+            .count();
 
-    /*
-    let mut lines = String::new();
-    reader.read_to_string(&mut lines).unwrap();
-    let valid_count = lines.par_lines()
-        .filter_map(|line| parse_raw_line_to_sudoku(line) )
-        .map(|sudoku| eval_sudoku(sudoku) )
-        .filter(|b|*b)
-        .count();
+        // The parallel version
+        /*
+        let mut lines = String::new();
+        reader.read_to_string(&mut lines).unwrap();
+        valid_count += lines.par_lines()
+            .filter_map(|line| parse_raw_line_to_sudoku(line) )
+            .map(|sudoku| eval_sudoku(sudoku) )
+            .filter(|b|*b)
+            .count();
 
-     */
+         */
 
-
-
-    let valid_count = reader.lines()
-        .filter_map(|line|line.ok())
-        .filter_map(|line| parse_raw_line_to_sudoku(&line) )
-        .map(|sudoku| eval_sudoku(sudoku) )
-        .filter(|b|*b)
-        .count();
-
-
+    }
 
 
     println!("Valid sudokus: {}",valid_count);
